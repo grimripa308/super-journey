@@ -577,27 +577,164 @@
 
     <script>
         // ===== QUIZ DATA =====
-        const lionQuiz = [
-            {
-                question: "What is the average weight of an adult male African lion?",
-                options: ["150 kg", "190 kg", "250 kg", "300 kg"],
-                correctAnswer: "190 kg",
-                explanation: "Adult male African lions typically weigh between 150-250 kg, with 190 kg being the average."
-            },
-            {
-                question: "What is a group of lions called?",
-                options: ["A pack", "A pride", "A herd", "A colony"],
-                correctAnswer: "A pride",
-                explanation: "Lions are social cats and live in groups called prides, typically consisting of related females, their cubs, and a small number of adult males."
-            },
-            {
-                question: "How long can a lion live in the wild?",
-                options: ["8-10 years", "10-14 years", "15-20 years", "20-25 years"],
-                correctAnswer: "10-14 years",
-                explanation: "Lions in the wild typically live 10-14 years, while in captivity they can live up to 20 years or more."
-            },
-            {
-                question: "What percentage of hunting is done by female lions?",
-                options: ["50%", "70%", "85-90%", "100%"],
-                correctAnswer: "85-90%",
-                explanation: "Female lions (lionesses) do about 85-90% of the hunting, w
+const lionQuiz = [
+    {
+        question: "What is the average weight of an adult male African lion?",
+        options: ["150 kg", "190 kg", "250 kg", "300 kg"],
+        correctAnswer: "190 kg",
+        explanation: "Adult male African lions typically weigh between 150-250 kg, with 190 kg being the average."
+    },
+    {
+        question: "What is a group of lions called?",
+        options: ["A pack", "A pride", "A herd", "A colony"],
+        correctAnswer: "A pride",
+        explanation: "Lions are social cats and live in groups called prides, typically consisting of related females, their cubs, and a small number of adult males."
+    },
+    {
+        question: "How long can a lion live in the wild?",
+        options: ["8-10 years", "10-14 years", "15-20 years", "20-25 years"],
+        correctAnswer: "10-14 years",
+        explanation: "Lions in the wild typically live 10-14 years, while in captivity they can live up to 20 years or more."
+    },
+    {
+        question: "What percentage of hunting is done by female lions?",
+        options: ["50%", "70%", "85-90%", "100%"],
+        correctAnswer: "85-90%",
+        explanation: "Female lions (lionesses) do about 85-90% of the hunting, working together to stalk and bring down prey."
+    },
+    {
+        question: "How fast can a lion run in short bursts?",
+        options: ["30 km/h", "50 km/h", "80 km/h", "100 km/h"],
+        correctAnswer: "80 km/h",
+        explanation: "Lions can reach speeds of up to 80 km/h (50 mph) in short bursts, but they lack stamina for long chases."
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+// ===== NAVIGATION =====
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+}
+
+function openLionQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    answered = false;
+    showPage('lionQuizPage');
+    loadQuestion();
+}
+
+function goToDashboard() {
+    showPage('dashboardPage');
+}
+
+// ===== QUIZ FUNCTIONS =====
+function loadQuestion() {
+    answered = false;
+    const question = lionQuiz[currentQuestion];
+    const quizBox = document.getElementById('quizBox');
+
+    const progress = ((currentQuestion + 1) / lionQuiz.length) * 100;
+
+    quizBox.innerHTML = `
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+        </div>
+        <div class="quiz-header">
+            <span class="question-counter">Question ${currentQuestion + 1}/${lionQuiz.length}</span>
+            <span class="score-display">Score: ${score}</span>
+        </div>
+        <h2 class="question-text">${question.question}</h2>
+        <div class="options-container" id="optionsContainer"></div>
+        <div class="explanation" id="explanation"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+    `;
+
+    const optionsContainer = document.getElementById('optionsContainer');
+    question.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(btn, option);
+        optionsContainer.appendChild(btn);
+    });
+}
+
+function checkAnswer(btn, selectedAnswer) {
+    if (answered) return;
+    answered = true;
+
+    const question = lionQuiz[currentQuestion];
+    const isCorrect = selectedAnswer === question.correctAnswer;
+
+    document.querySelectorAll('.option-btn').forEach(b => {
+        b.classList.add('disabled');
+        if (b.textContent === question.correctAnswer) {
+            b.classList.add('correct');
+        }
+    });
+
+    if (isCorrect) {
+        score++;
+        document.querySelector('.score-display').textContent = `Score: ${score}`;
+    } else {
+        btn.classList.add('wrong');
+    }
+
+    const explanationDiv = document.getElementById('explanation');
+    explanationDiv.innerHTML = `
+        <strong>${isCorrect ? '✅ Correct!' : '❌ Wrong!'}</strong><br><br>
+        ${question.explanation}
+    `;
+    explanationDiv.classList.add('show');
+
+    document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    if (currentQuestion < lionQuiz.length) {
+        loadQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function showResults() {
+    const quizBox = document.getElementById('quizBox');
+    
+    let message = '';
+    let emoji = '';
+
+    if (score === 5) {
+        message = "Perfect! You're a true lion expert! 🌟";
+        emoji = '👑';
+    } else if (score >= 3) {
+        message = "Great job! You know your lions well! 🎉";
+        emoji = '🏆';
+    } else if (score >= 1) {
+        message = "Not bad! Keep learning about these magnificent creatures! 📚";
+        emoji = '🦁';
+    } else {
+        message = "Time to brush up on your lion knowledge! 🦁";
+        emoji = '📖';
+    }
+
+    quizBox.innerHTML = `
+        <div class="results-container">
+            <div class="trophy">${emoji}</div>
+            <h1>Quiz Complete!</h1>
+            <div class="final-score">${score}/${lionQuiz.length}</div>
+            <p class="score-message">${message}</p>
+            <button class="restart-btn" onclick="openLionQuiz()">Try Again 🔄</button>
+            <button class="dashboard-return-btn" onclick="goToDashboard()">Back to Dashboard</button>
+        </div>
+    `;
+}
+        
