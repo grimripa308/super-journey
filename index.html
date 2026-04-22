@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Lion Wildlife Quiz</title>
+   <style>
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+
+       body {
+           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+           background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+           min-height: 100vh;
+           color: #fff;
+       }
+
+       .page {
+           display: none;
+           min-height: 100vh;
+           padding: 20px;
+       }
+
+       .page.active {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           justify-content: center;
+       }
+
+       /* Welcome Page Styles */
+       .welcome-container {
+           text-align: center;
+           animation: fadeInUp 1s ease-out;
+       }
+
+       .lion-emoji {
+           font-size: 100px;
+           margin-bottom: 20px;
+           animation: bounce 2s infinite;
+       }
+
+       .welcome-title {
+           font-size: 3.5rem;
+           margin-bottom: 15px;
+           background: linear-gradient(45deg, #f4a460, #ffd700);
+           -webkit-background-clip: text;
+           -webkit-text-fill-color: transparent;
+           text-shadow: 0 0 30px rgba(244, 164, 96, 0.3);
+       }
+
+       .welcome-subtitle {
+           font-size: 1.3rem;
+           color: #a0a0a0;
+           margin-bottom: 40px;
+           max-width: 600px;
+           line-height: 1.6;
+       }
+
+       .start-btn {
+           padding: 18px 50px;
+           font-size: 1.3rem;
+           border: none;
+           border-radius: 50px;
+           background: linear-gradient(45deg, #f4a460, #d2691e);
+           color: white;
+           cursor: pointer;
+           transition: all 0.3s ease;
+           box-shadow: 0 10px 30px rgba(244, 164, 96, 0.3);
+       }
+
+       .start-btn:hover {
+           transform: translateY(-3px);
+           box-shadow: 0 15px 40px rgba(244, 164, 96, 0.5);
+       }
+
+       /* Quiz Page Styles */
+       .quiz-container {
+           width: 100%;
+           max-width: 700px;
+           background: rgba(255, 255, 255, 0.05);
+           border-radius: 20px;
+           padding: 40px;
+           backdrop-filter: blur(10px);
+           border: 1px solid rgba(255, 255, 255, 0.1);
+       }
+
+       .quiz-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 30px;
+           padding-bottom: 20px;
+           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+       }
+
+       .question-counter {
+           font-size: 1rem;
+           color: #f4a460;
+       }
+
+       .score-display {
+           font-size: 1rem;
+           color: #ffd700;
+       }
+
+       .question-text {
+           font-size: 1.5rem;
+           margin-bottom: 30px;
+           line-height: 1.5;
+       }
+
+       .options-container {
+           display: flex;
+           flex-direction: column;
+           gap: 15px;
+       }
+
+       .option-btn {
+           padding: 18px 25px;
+           border: 2px solid rgba(255, 255, 255, 0.1);
+           border-radius: 12px;
+           background: rgba(255, 255, 255, 0.05);
+           color: white;
+           font-size: 1.1rem;
+           cursor: pointer;
+           transition: all 0.3s ease;
+           text-align: left;
+       }
+
+       .option-btn:hover {
+           background: rgba(244, 164, 96, 0.2);
+           border-color: #f4a460;
+           transform: translateX(5px);
+       }
+
+       .option-btn.correct {
+           background: rgba(46, 204, 113, 0.3);
+           border-color: #2ecc71;
+       }
+
+       .option-btn.wrong {
+           background: rgba(231, 76, 60, 0.3);
+           border-color: #e74c3c;
+       }
+
+       .option-btn.disabled {
+           pointer-events: none;
+           opacity: 0.6;
+       }
+
+       .explanation {
+           margin-top: 20px;
+           padding: 20px;
+           background: rgba(255, 255, 255, 0.05);
+           border-radius: 12px;
+           border-left: 4px solid #f4a460;
+           display: none;
+           animation: fadeIn 0.5s ease;
+       }
+
+       .explanation.show {
+           display: block;
+       }
+
+       .next-btn {
+           margin-top: 25px;
+           padding: 15px 40px;
+           border: none;
+           border-radius: 30px;
+           background: linear-gradient(45deg, #f4a460, #d2691e);
+           color: white;
+           font-size: 1.1rem;
+           cursor: pointer;
+           display: none;
+           transition: all 0.3s ease;
+       }
+
+       .next-btn.show {
+           display: inline-block;
+       }
+
+       .next-btn:hover {
+           transform: scale(1.05);
+       }
+
+       /* Results Page Styles */
+       .results-container {
+           text-align: center;
+           animation: fadeInUp 0.8s ease;
+       }
+
+       .trophy {
+           font-size: 80px;
+           margin-bottom: 20px;
+       }
+
+       .final-score {
+           font-size: 4rem;
+           color: #ffd700;
+           margin-bottom: 10px;
+       }
+
+       .score-message {
+           font-size: 1.3rem;
+           color: #a0a0a0;
+           margin-bottom: 30px;
+       }
+
+       .restart-btn {
+           padding: 18px 50px;
+           font-size: 1.2rem;
+           border: none;
+           border-radius: 50px;
+           background: linear-gradient(45deg, #f4a460, #d2691e);
+           color: white;
+           cursor: pointer;
+           transition: all 0.3s ease;
+       }
+
+       .restart-btn:hover {
+           transform: translateY(-3px);
+           box-shadow: 0 10px 30px rgba(244, 164, 96, 0.4);
+       }
+
+       .progress-bar {
+           width: 100%;
+           height: 6px;
+           background: rgba(255, 255, 255, 0.1);
+           border-radius: 3px;
+           margin-bottom: 30px;
+           overflow: hidden;
+       }
+
+       .progress-fill {
+           height: 100%;
+           background: linear-gradient(90deg, #f4a460, #ffd700);
+           border-radius: 3px;
+           transition: width 0.5s ease;
+       }
+
+       @keyframes fadeInUp {
+           from {
+               opacity: 0;
+               transform: translateY(30px);
+           }
+           to {
+               opacity: 1;
+               transform: translateY(0);
+           }
+       }
+
+       @keyframes bounce {
+           0%, 100% {
+               transform: translateY(0);
+           }
+           50% {
+               transform: translateY(-20px);
+           }
+       }
+
+       @keyframes fadeIn {
+           from { opacity: 0; }
+           to { opacity: 1; }
+       }
+   </style>
+</head>
+<body>
+
+   <!-- Welcome Page -->
+   <div id="welcomePage" class="page active">
+       <div class="welcome-container">
+           <div class="lion-emoji">🦁</div>
+           <h1 class="welcome-title">Welcome to the Lion Quiz!</h1>
+           <p class="welcome-subtitle">
+               Test your knowledge about the kings of the savanna! 
+               Discover fascinating facts about lions, their behavior, 
+               and their life in the wild.
+           </p>
+           <button class="start-btn" onclick="startQuiz()">Start Quiz 🚀</button>
+       </div>
+   </div>
+
+   <!-- Quiz Page -->
+   <div id="quizPage" class="page">
+       <div class="quiz-container">
+           <div class="progress-bar">
+               <div class="progress-fill" id="progressBar"></div>
+           </div>
+           <div class="quiz-header">
+               <span class="question-counter" id="questionCounter">Question 1/5</span>
+               <span class="score-display" id="scoreDisplay">Score: 0</span>
+           </div>
+           <h2 class="question-text" id="questionText"></h2>
+           <div class="options-container" id="optionsContainer"></div>
+           <div class="explanation" id="explanation"></div>
+           <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+       </div>
+   </div>
+
+   <!-- Results Page -->
+   <div id="resultsPage" class="page">
+       <div class="results-container">
+           <div class="trophy" id="trophyEmoji">🏆</div>
+           <h1>Quiz Complete!</h1>
+           <div class="final-score" id="finalScore">0/5</div>
+           <p class="score-message" id="scoreMessage"></p>
+           <button class="restart-btn" onclick="restartQuiz()">Try Again 🔄</button>
+       </div>
+   </div>
+
+   <script>
+       // Quiz Data
+       const lionQuiz = [
+           {
+               question: "What is the average weight of an adult male African lion?",
+               options: ["150 kg", "190 kg", "250 kg", "300 kg"],
+               correctAnswer: "190 kg",
+               explanation: "Adult male African lions typically weigh between 150-250 kg, with 190 kg being the average."
+           },
+           {
+               question: "What is a group of lions called?",
+               options: ["A pack", "A pride", "A herd", "A colony"],
+               correctAnswer: "A pride",
+               explanation: "Lions are social cats and live in groups called prides, typically consisting of related females, their cubs, and a small number of adult males."
+           },
+           {
+               question: "How long can a lion live in the wild?",
+               options: ["8-10 years", "10-14 years", "15-20 years", "20-25 years"],
+               correctAnswer: "10-14 years",
+               explanation: "Lions in the wild typically live 10-14 years, while in captivity they can live up to 20 years or more."
+           },
+           {
+               question: "What percentage of hunting is done by female lions?",
+               options: ["50%", "70%", "85-90%", "100%"],
+               correctAnswer: "85-90%",
+               explanation: "Female lions (lionesses) do about 85-90% of the hunting, working together to stalk and bring down prey."
+           },
+           {
+               question: "How fast can a lion run in short bursts?",
+               options: ["30 km/h", "50 km/h", "80 km/h", "100 km/h"],
+               correctAnswer: "80 km/h",
+               explanation: "Lions can reach speeds of up to 80 km/h (50 mph) in short bursts, but they lack stamina for long chases."
+           }
+       ];
+
+       let currentQuestion = 0;
+       let score = 0;
+       let answered = false;
+
+       function showPage(pageId) {
+           document.querySelectorAll('.page').forEach(page => {
+               page.classList.remove('active');
+           });
+           document.getElementById(pageId).classList.add('active');
+       }
+
+       function startQuiz() {
+           currentQuestion = 0;
+           score = 0;
+           answered = false;
+           showPage('quizPage');
+           loadQuestion();
+       }
+
+       function loadQuestion() {
+           answered = false;
+           const question = lionQuiz[currentQuestion];
+           
+           // Update progress
+           const progress = ((currentQuestion + 1) / lionQuiz.length) * 100;
+           document.getElementById('progressBar').style.width = progress + '%';
+           
+           // Update counter
+           document.getElementById('questionCounter').textContent = 
+               `Question ${currentQuestion + 1}/${lionQuiz.length}`;
+           document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
+           
+           // Update question
+           document.getElementById('questionText').textContent = question.question;
+           
+           // Update options
+           const optionsContainer = document.getElementById('optionsContainer');
+           optionsContainer.innerHTML = '';
+           
+           question.options.forEach(option => {
+               const btn = document.createElement('button');
+               btn.className = 'option-btn';
+               btn.textContent = option;
+               btn.onclick = () => checkAnswer(btn, option);
+               optionsContainer.appendChild(btn);
+           });
+           
+           // Hide explanation and next button
+           document.getElementById('explanation').classList.remove('show');
+           document.getElementById('nextBtn').classList.remove('show');
+       }
+
+       function checkAnswer(btn, selectedAnswer) {
+           if (answered) return;
+           answered = true;
+           
+           const question = lionQuiz[currentQuestion];
+           const isCorrect = selectedAnswer === question.correctAnswer;
+           
+           // Disable all buttons
+           document.querySelectorAll('.option-btn').forEach(b => {
+               b.classList.add('disabled');
+               if (b.textContent === question.correctAnswer) {
+                   b.classList.add('correct');
+               }
+           });
+           
+           // Mark selected answer
+           if (isCorrect) {
+               score++;
+               document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
+           } else {
+               btn.classList.add('wrong');
+           }
+           
+           // Show explanation
+           const explanationDiv = document.getElementById('explanation');
+           explanationDiv.innerHTML = `
+               <strong>${isCorrect ? '✅ Correct!' : '❌ Wrong!'}</strong><br><br>
+               ${question.explanation}
+           `;
+           explanationDiv.classList.add('show');
+           
+           // Show next button
+           document.getElementById('nextBtn').classList.add('show');
+       }
+
+       function nextQuestion() {
+           currentQuestion++;
+           if (currentQuestion < lionQuiz.length) {
+               loadQuestion();
+           } else {
+               showResults();
+           }
+       }
+
+       function showResults() {
+           showPage('resultsPage');
+           document.getElementById('finalScore').textContent = `${score}/${lionQuiz.length}`;
+           
+           let message = '';
+           let emoji = '';
+           
+           if (score === 5) {
+               message = "Perfect! You're a true lion expert! 🌟";
+               emoji = '👑';
+           } else if (score >= 3) {
+               message = "Great job! You know your lions well! 🎉";
+               emoji = '🏆';
+           } else if (score >= 1) {
+               message = "Not bad! Keep learning about these magnificent creatures! 📚";
+               emoji = '🦁';
+           } else {
+               message = "Time to brush up on your lion knowledge! 🦁";
+               emoji = '📖';
+           }
+           
+           document.getElementById('scoreMessage').textContent = message;
+           document.getElementById('trophyEmoji').textContent = emoji;
+       }
+
+       function restartQuiz() {
+           startQuiz();
+       }
+   </script>
+
+</body>
+</html>
